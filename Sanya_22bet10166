@@ -1,0 +1,221 @@
+(6) Super Pow
+public class Solution {
+    private static final int MOD = 1337;
+
+    // Function to compute a^b % MOD
+    public int myPow(int a, int b) {
+        int result = 1;
+        a = a % MOD; // Take a modulo 1337
+        
+        while (b > 0) {
+            if (b % 2 == 1) {
+                result = (result * a) % MOD;
+            }
+            a = (a * a) % MOD;
+            b /= 2;
+        }
+        
+        return result;
+    }
+
+    // Function to compute a^b % 1337 where b is given in an array
+    public int superPow(int a, int[] b) {
+        int result = 1;
+        a = a % MOD; // Reduce a modulo 1337
+        
+        // Process each digit in the array b
+        for (int i = 0; i < b.length; i++) {
+            // For each digit in the array, raise the result to the power of 10
+            result = myPow(result, 10);
+            // Multiply the result by a^b[i] % 1337
+            result = (result * myPow(a, b[i])) % MOD;
+        }
+        
+        return result;
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        
+        // Example 1
+        int a1 = 2;
+        int[] b1 = {3};
+        System.out.println(solution.superPow(a1, b1));  // Output: 8
+        
+        // Example 2
+        int a2 = 2;
+        int[] b2 = {1, 0};
+        System.out.println(solution.superPow(a2, b2));  // Output: 1024
+        
+        // Example 3
+        int a3 = 1;
+        int[] b3 = {4, 3, 3, 8, 5, 2};
+        System.out.println(solution.superPow(a3, b3));  // Output: 1
+    }
+}
+(7) Beautiful Array
+public class Solution {
+    public int[] beautifulArray(int n) {
+        // The result list that we will build up
+        List<Integer> result = new ArrayList<>();
+        
+        // Start with the full range [1, n] in the beginning
+        result.add(1);
+        
+        // Keep dividing the numbers into odd and even
+        while (result.size() < n) {
+            List<Integer> next = new ArrayList<>();
+            
+            // Add the odd numbers first
+            for (int x : result) {
+                if (x * 2 - 1 <= n) {
+                    next.add(x * 2 - 1); // odd numbers
+                }
+            }
+            
+            // Add the even numbers next
+            for (int x : result) {
+                if (x * 2 <= n) {
+                    next.add(x * 2); // even numbers
+                }
+            }
+            
+            // Move to the next step
+            result = next;
+        }
+        
+        // Convert List to Array and return
+        return result.stream().mapToInt(i -> i).toArray();
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        
+        // Example 1
+        int n1 = 4;
+        int[] result1 = solution.beautifulArray(n1);
+        System.out.println(Arrays.toString(result1));  // Output: [2, 1, 4, 3] (example output)
+        
+        // Example 2
+        int n2 = 5;
+        int[] result2 = solution.beautifulArray(n2);
+        System.out.println(Arrays.toString(result2));  // Output: [3, 1, 2, 5, 4] (example output)
+    }
+}
+(8) The Skyline Problem
+import java.util.*;
+
+public class Solution {
+    public List<List<Integer>> getSkyline(int[][] buildings) {
+        List<List<Integer>> result = new ArrayList<>();
+        
+        // List to hold all the events
+        List<int[]> events = new ArrayList<>();
+        
+        // Create events for each building
+        for (int[] building : buildings) {
+            // Start event (left edge of building)
+            events.add(new int[]{building[0], building[2], 1}); // [x, height, type] -> 1 means start
+            // End event (right edge of building)
+            events.add(new int[]{building[1], building[2], -1}); // [x, height, type] -> -1 means end
+        }
+        
+        // Sort events first by x-coordinate, then by height (start before end if same x)
+        Collections.sort(events, (a, b) -> {
+            if (a[0] != b[0]) {
+                return a[0] - b[0]; // Sort by x-coordinate
+            } else {
+                return a[2] - b[2]; // Sort by type (start before end)
+            }
+        });
+        
+        // Max-heap to keep track of the current building heights
+        PriorityQueue<Integer> maxHeap = new PriorityQueue<>(Collections.reverseOrder());
+        maxHeap.add(0); // Add ground level (height 0)
+        
+        // Previous maximum height
+        int prevMaxHeight = 0;
+        
+        // Process each event
+        for (int[] event : events) {
+            int x = event[0];
+            int height = event[1];
+            int type = event[2];
+            
+            if (type == 1) {
+                // Start of building, add height to max-heap
+                maxHeap.add(height);
+            } else {
+                // End of building, remove height from max-heap
+                maxHeap.remove(height);
+(9) Reverse Pairs
+Given an integer array nums, return the number of reverse pairs in the array.
+
+A reverse pair is a pair (i, j) where:
+
+0 <= i < j < nums.length and
+nums[i] > 2 * nums[j].
+ 
+
+Example 1:
+
+Input: nums = [1,3,2,3,1]
+Output: 2
+Explanation: The reverse pairs are:
+(1, 4) --> nums[1] = 3, nums[4] = 1, 3 > 2 * 1
+(3, 4) --> nums[3] = 3, nums[4] = 1, 3 > 2 * 1
+Example 2:
+
+Input: nums = [2,4,3,5,1]
+Output: 3
+Explanation: The reverse pairs are:
+(1, 4) --> nums[1] = 4, nums[4] = 1, 4 > 2 * 1
+(2, 4) --> nums[2] = 3, nums[4] = 1, 3 > 2 * 1
+(3, 4) --> nums[3] = 5, nums[4] = 1, 5 > 2 * 1
+
+(10) Longest Incresing Subsequence 2
+public class Solution {
+    public int longestSubsequence(int[] nums, int k) {
+        int n = nums.length;
+        // Initialize the dp array where each element is at least a subsequence of length 1
+        int[] dp = new int[n];
+        Arrays.fill(dp, 1);
+        
+        // Traverse through each number
+        for (int i = 1; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                // Check the strictly increasing and the difference condition
+                if (nums[i] > nums[j] && nums[i] - nums[j] <= k) {
+                    dp[i] = Math.max(dp[i], dp[j] + 1);
+                }
+            }
+        }
+        
+        // The result is the maximum value in the dp array
+        int maxLength = 0;
+        for (int length : dp) {
+            maxLength = Math.max(maxLength, length);
+        }
+        
+        return maxLength;
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        
+        // Example 1
+        int[] nums1 = {4,2,1,4,3,4,5,8,15};
+        int k1 = 3;
+        System.out.println(solution.longestSubsequence(nums1, k1));  // Output: 5
+        
+        // Example 2
+        int[] nums2 = {7,4,5,1,8,12,4,7};
+        int k2 = 5;
+        System.out.println(solution.longestSubsequence(nums2, k2));  // Output: 4
+        
+        // Example 3
+        int[] nums3 = {1,5};
+        int k3 = 1;
+        System.out.println(solution.longestSubsequence(nums3, k3));  // Output: 1
+    }
+}
